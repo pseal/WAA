@@ -118,6 +118,36 @@
   }
   .search-wrap button:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(56,189,248,0.4); }
 
+  /* ── AUTOCOMPLETE ── */
+  .autocomplete-wrap { position: relative; flex: 1; }
+  .autocomplete-wrap input { width: 100%; }
+
+  .suggestions {
+    position: absolute; top: calc(100% + 8px); left: 0; right: 0;
+    background: #0d1f3c;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 16px 40px rgba(0,0,0,0.6);
+    z-index: 999;
+    display: none;
+  }
+  .suggestions.open { display: block; }
+
+  .suggestion-item {
+    padding: 12px 20px;
+    font-size: 14px; cursor: pointer;
+    display: flex; flex-direction: column; gap: 2px;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+  .suggestion-item:last-child { border-bottom: none; }
+  .suggestion-item:hover, .suggestion-item.active {
+    background: rgba(56,189,248,0.12);
+  }
+  .suggestion-item .s-city { font-weight: 600; color: var(--text); }
+  .suggestion-item .s-region { font-size: 12px; color: var(--muted); }
+
   /* ── HERO ── */
   .hero {
     width: 100%; max-width: 540px;
@@ -331,7 +361,11 @@
 </div>
 
 <div class="search-wrap">
-  <input type="text" id="cityInput" placeholder="Enter city name..." />
+  <div class="autocomplete-wrap">
+    <input type="text" id="cityInput" placeholder="Enter city name..."
+           autocomplete="off" onkeydown="handleSearchKey(event)" />
+    <div class="suggestions" id="suggestions"></div>
+  </div>
   <button onclick="getWeather()">Search</button>
 </div>
 
