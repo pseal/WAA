@@ -4,373 +4,392 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Weather Anytime Anywhere</title>
-
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Bebas+Neue&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
-    body {
-        margin: 0;
-        font-family: Arial, Helvetica, sans-serif;
-        background: linear-gradient(to bottom, #4facfe, #00f2fe);
-        color: black;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 0 10px 40px;
-    }
+  :root {
+    --bg0: #050d1a;
+    --bg1: #0a1628;
+    --bg2: #0f2040;
+    --accent: #38bdf8;
+    --accent2: #818cf8;
+    --glow: rgba(56,189,248,0.18);
+    --glass: rgba(255,255,255,0.045);
+    --border: rgba(255,255,255,0.09);
+    --text: #e2eeff;
+    --muted: rgba(200,220,255,0.45);
+    --r: 18px;
+    --shadow: 0 12px 40px rgba(0,0,0,0.5);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    h1 {
-        margin-top: 20px;
-        font-size: 32px;
-        font-weight: 700;
-        text-shadow: 0 2px 6px rgba(0,0,0,0.3);
-    }
+  body {
+    min-height: 100vh;
+    background: var(--bg0);
+    font-family: 'Outfit', sans-serif;
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 16px 80px;
+    overflow-x: hidden;
+  }
 
-    /* Search Bar */
-    .search-container {
-        margin: 20px 0;
-        display: flex;
-        gap: 10px;
-        width: 100%;
-        max-width: 500px;
-    }
+  /* Mesh background */
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 70% -10%, rgba(56,189,248,0.13) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 50% at -10% 80%, rgba(129,140,248,0.11) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 40% at 50% 50%, rgba(14,30,60,0.8) 0%, transparent 100%);
+    pointer-events: none;
+  }
 
-    .search-container input {
-        flex: 1;
-        padding: 12px;
-        border-radius: 8px;
-        border: none;
-        font-size: 16px;
-    }
+  /* Star dots */
+  body::after {
+    content: '';
+    position: fixed; inset: 0; z-index: 0;
+    background-image:
+      radial-gradient(circle, rgba(255,255,255,0.6) 1px, transparent 1px),
+      radial-gradient(circle, rgba(255,255,255,0.3) 1px, transparent 1px);
+    background-size: 80px 80px, 40px 40px;
+    background-position: 0 0, 20px 20px;
+    opacity: 0.18;
+    pointer-events: none;
+  }
 
-    .search-container button {
-        padding: 12px 20px;
-        border: none;
-        border-radius: 8px;
-        background: #003cff;
-        color: white;
-        font-size: 20px;
-        cursor: pointer;
-        transition: background 0.3s ease, transform 0.2s ease;
-    }
+  /* ── HEADER ── */
+  .topbar {
+    width: 100%; max-width: 860px;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 30px 0 24px;
+    position: relative; z-index: 10;
+  }
 
-    .search-container button:hover {
-        background: #0029b5;
-        transform: translateY(-1px);
-    }
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 26px;
+    letter-spacing: 2px;
+    background: linear-gradient(90deg, var(--accent) 0%, var(--accent2) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
 
-    /* HERO SECTION */
-    .hero {
-        width: 100%;
-        max-width: 600px;
-        background: rgba(255,255,255,0.15);
-        padding: 20px;
-        border-radius: 16px;
-        text-align: center;
-        backdrop-filter: blur(10px);
-        margin-bottom: 20px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.25);
-        opacity: 0;
-        transform: translateY(10px);
-        transition: opacity 0.5s ease, transform 0.5s ease;
-    }
+  #langToggle {
+    font-family: 'Outfit', sans-serif;
+    font-size: 13px; font-weight: 600;
+    padding: 8px 20px;
+    border-radius: 40px;
+    border: 1px solid var(--border);
+    background: var(--glass);
+    color: var(--text);
+    cursor: pointer;
+    backdrop-filter: blur(12px);
+    transition: all 0.2s;
+    letter-spacing: 1px;
+  }
+  #langToggle:hover { border-color: var(--accent); color: var(--accent); }
 
-    .hero.visible {
-        opacity: 1;
-        transform: translateY(0);
-    }
+  /* ── SEARCH ── */
+  .search-wrap {
+    width: 100%; max-width: 540px;
+    display: flex; gap: 10px;
+    margin-bottom: 32px;
+    position: relative; z-index: 10;
+  }
+  .search-wrap input {
+    flex: 1; padding: 14px 22px;
+    border-radius: 50px;
+    border: 1px solid var(--border);
+    background: var(--glass);
+    backdrop-filter: blur(20px);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif; font-size: 15px;
+    outline: none; transition: border-color 0.2s;
+  }
+  .search-wrap input::placeholder { color: var(--muted); }
+  .search-wrap input:focus { border-color: var(--accent); }
+  .search-wrap button {
+    padding: 14px 28px; border-radius: 50px; border: none;
+    background: linear-gradient(120deg, var(--accent), #0ea5e9);
+    color: #020d1a;
+    font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 700;
+    cursor: pointer; transition: all 0.2s; white-space: nowrap;
+    letter-spacing: 0.3px;
+  }
+  .search-wrap button:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(56,189,248,0.4); }
 
-    .hero h2 {
-        margin: 0;
-        font-size: 28px;
-    }
+  /* ── HERO ── */
+  .hero {
+    width: 100%; max-width: 540px;
+    background: var(--glass);
+    border: 1px solid var(--border);
+    backdrop-filter: blur(28px);
+    border-radius: 28px;
+    padding: 40px 32px 32px;
+    text-align: center;
+    margin-bottom: 14px;
+    box-shadow: var(--shadow), 0 0 0 1px rgba(56,189,248,0.06) inset;
+    opacity: 0; transform: translateY(20px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+    position: relative; z-index: 5;
+  }
+  .hero.visible { opacity: 1; transform: translateY(0); }
 
-    .hero .temp {
-        font-size: 60px;
-        font-weight: bold;
-        margin: 10px 0;
-    }
+  .hero-location {
+    font-size: 15px; font-weight: 500;
+    color: var(--muted); letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
 
-    .hero .condition {
-        font-size: 30px;
-        opacity: 0.9;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 6px;
-    }
+  .hero-temp {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 108px; line-height: 1;
+    background: linear-gradient(170deg, #fff 30%, var(--accent) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    letter-spacing: -2px;
+  }
 
-    .hero-sub {
-        margin-top: 10px;
-        font-size: 20px;
-        opacity: 0.9;
-    }
+  .hero-condition {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    font-size: 18px; font-weight: 400; color: var(--muted);
+    margin-top: 4px;
+  }
 
-    .animated-icon {
-        width: 70px;
-        height: 70px;
-        animation: floatIcon 3s ease-in-out infinite;
-    }
+  .hero-sub {
+    margin-top: 16px; font-size: 13px; color: var(--muted);
+    display: flex; justify-content: center; gap: 20px;
+    border-top: 1px solid var(--border); padding-top: 16px;
+  }
+  .hero-sub span { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+  .hero-sub .val { font-size: 20px; font-weight: 600; color: var(--text); }
+  .hero-sub .lbl { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
 
-    @keyframes floatIcon {
-        0% { transform: translateY(0px); }
-        50% { transform: translateY(-6px); }
-        100% { transform: translateY(0px); }
-    }
+  .animated-icon {
+    width: 54px; height: 54px;
+    animation: floatIcon 3s ease-in-out infinite;
+    filter: drop-shadow(0 0 12px rgba(56,189,248,0.6));
+  }
+  @keyframes floatIcon { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
 
-    /* NEXT 2 HOURS BELOW HERO */
-    .next2-container {
-        width: 100%;
-        max-width: 600px;
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-        margin-bottom: 20px;
-    }
+  /* ── NEXT 2 HOURS ── */
+  .next2-grid {
+    width: 100%; max-width: 540px;
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 12px; margin-bottom: 28px;
+    position: relative; z-index: 5;
+  }
+  .next2-card {
+    background: var(--glass); border: 1px solid var(--border);
+    backdrop-filter: blur(16px);
+    border-radius: var(--r); padding: 20px 16px; text-align: center;
+    box-shadow: var(--shadow);
+  }
+  .next2-card img { width: 44px; margin: 6px 0; }
+  .next2-card .n2-time { font-size: 12px; color: var(--muted); letter-spacing: 0.5px; }
+  .next2-card .n2-temp { font-family: 'Bebas Neue', sans-serif; font-size: 42px; line-height: 1; color: var(--text); }
+  .next2-card .n2-cond { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+  .next2-card .n2-sub {
+    font-size: 12px; color: var(--muted);
+    display: flex; flex-direction: column; gap: 2px;
+    border-top: 1px solid var(--border); padding-top: 8px; margin-top: 4px;
+  }
 
-    .next2-card {
-        background: rgba(255,255,255,0.18);
-        padding: 14px;
-        border-radius: 16px;
-        text-align: center;
-        backdrop-filter: blur(10px);
-        box-shadow: 0 6px 16px rgba(0,0,0,0.25);
-    }
+  /* ── SECTION LABEL ── */
+  .sec-label {
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 2.5px; text-transform: uppercase;
+    color: var(--accent);
+    width: 100%; max-width: 860px;
+    margin: 4px 0 12px;
+    position: relative; z-index: 5;
+  }
 
-    .next2-card img {
-        width: 60px;
-    }
+  /* ── GLASS CARD ── */
+  .card {
+    width: 100%; max-width: 860px;
+    background: var(--glass); border: 1px solid var(--border);
+    backdrop-filter: blur(20px);
+    border-radius: var(--r); padding: 24px;
+    box-shadow: var(--shadow);
+    margin-bottom: 14px;
+    position: relative; z-index: 5;
+  }
+  .card-title {
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 2px; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 18px;
+  }
 
-    /* SUMMARY PANEL */
-    .summary-card {
-        width: 100%;
-        max-width: 900px;
-        background: rgba(255,255,255,0.18);
-        padding: 16px;
-        border-radius: 16px;
-        backdrop-filter: blur(10px);
-        box-shadow: 0 8px 20px rgba(0,0,0,0.25);
-        margin-bottom: 20px;
-    }
+  /* ── SUMMARY PILLS ── */
+  .summary-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  }
+  .sum-pill {
+    background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+    border-radius: 12px; padding: 12px 16px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .sum-pill .sp-label { font-size: 13px; color: var(--muted); }
+  .sum-pill .sp-value { font-size: 15px; font-weight: 600; color: var(--text); }
 
-    .summary-row {
-        display: flex;
-        justify-content: space-between;
-        margin: 6px 0;
-        font-size: 20px;
-    }
+  /* ── COMPASS + UV side by side ── */
+  .extras-row { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 20px; align-items: start; }
 
-    /* Compass */
-    .compass-container {
-        width: 120px;
-        height: 120px;
-        margin: 10px auto;
-        position: relative;
-    }
+  .compass-outer { display: flex; flex-direction: column; align-items: center; }
+  .compass-ring {
+    width: 100px; height: 100px; border-radius: 50%;
+    border: 2px solid var(--border);
+    background: rgba(56,189,248,0.04);
+    position: relative; margin-top: 12px;
+  }
+  .compass-ring::before { content:"N"; position:absolute; top:-20px; left:50%; transform:translateX(-50%); font-size:12px; font-weight:700; color:var(--accent); }
+  .compass-ring::after  { content:"S"; position:absolute; bottom:-20px; left:50%; transform:translateX(-50%); font-size:12px; color:var(--muted); }
+  .compass-needle {
+    width: 3px; height: 44%;
+    background: linear-gradient(to top, transparent, #f87171);
+    position: absolute; bottom:50%; left:50%;
+    transform-origin: bottom center;
+    transform: translateX(-50%) rotate(0deg);
+    transition: transform 0.9s cubic-bezier(0.34,1.4,0.64,1);
+    border-radius: 2px 2px 0 0;
+  }
 
-    .compass-base {
-        width: 100%;
-        height: 100%;
-        border: 4px solid rgba(255,255,255,0.4);
-        border-radius: 50%;
-        position: relative;
-    }
+  .uv-outer { display: flex; flex-direction: column; justify-content: center; }
+  .uv-bar {
+    width: 100%; height: 10px; border-radius: 10px; margin-top: 12px;
+    background: linear-gradient(to right, #4ade80, #facc15, #fb923c, #f87171);
+    position: relative;
+  }
+  .uv-dot {
+    width: 16px; height: 16px; border-radius: 50%; background: white;
+    position: absolute; top: -3px;
+    transform: translateX(-50%);
+    transition: left 0.5s ease;
+    box-shadow: 0 0 10px rgba(255,255,255,0.7);
+  }
+  #uvText { margin-top: 10px; font-size: 13px; color: var(--muted); }
 
-    .compass-base::before {
-        content: "N";
-        position: absolute;
-        top: -18px;
-        left: 50%;
-        transform: translateX(-50%);
-        font-size: 16px;
-        opacity: 0.8;
-    }
+  /* ── CHARTS ── */
+  canvas { width: 100%; border-radius: 10px; background: rgba(0,0,0,0.2); display: block; }
 
-    .compass-needle {
-        width: 4px;
-        height: 50%;
-        background: red;
-        position: absolute;
-        top: 10%;
-        left: 50%;
-        transform-origin: bottom center;
-        transform: translateX(-50%) rotate(0deg);
-        transition: transform 0.8s ease;
-    }
+  /* ── NEXT 10 HOURS ── */
+  .next10-row {
+    width: 100%; max-width: 860px;
+    display: flex; overflow-x: auto; gap: 10px;
+    padding-bottom: 8px; margin-bottom: 14px;
+    position: relative; z-index: 5;
+    scrollbar-width: thin; scrollbar-color: var(--border) transparent;
+  }
+  .next10-row::-webkit-scrollbar { height: 3px; }
+  .next10-row::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
-    /* UV Bar */
-    .uv-bar {
-        width: 100%;
-        height: 12px;
-        border-radius: 6px;
-        background: linear-gradient(to right,
-            #4caf50 0%,
-            #ffeb3b 40%,
-            #ff9800 70%,
-            #f44336 100%
-        );
-        position: relative;
-        margin-top: 6px;
-    }
+  .n10-card {
+    min-width: 112px; flex-shrink: 0;
+    background: var(--glass); border: 1px solid var(--border);
+    backdrop-filter: blur(14px);
+    border-radius: 16px; padding: 16px 12px; text-align: center;
+    box-shadow: var(--shadow); transition: border-color 0.2s, transform 0.2s;
+  }
+  .n10-card:hover { border-color: var(--accent); transform: translateY(-3px); }
+  .n10-card img { width: 44px; margin: 6px 0; }
+  .n10-card .n10-time { font-size: 12px; color: var(--muted); }
+  .n10-card .n10-temp { font-family: 'Bebas Neue', sans-serif; font-size: 34px; line-height: 1.1; }
+  .n10-card .n10-cond { font-size: 12px; color: var(--muted); }
+  .n10-card .n10-sub { font-size: 11px; color: var(--muted); margin-top: 6px; border-top: 1px solid var(--border); padding-top: 6px; }
 
-    .uv-pointer {
-        width: 10px;
-        height: 20px;
-        background: white;
-        border-radius: 3px;
-        position: absolute;
-        top: -4px;
-        transform: translateX(-50%);
-        transition: left 0.5s ease;
-    }
+  /* ── WEEKLY ── */
+  .weekly-grid {
+    width: 100%; max-width: 860px;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(108px, 1fr));
+    gap: 10px; margin-bottom: 14px;
+    position: relative; z-index: 5;
+  }
+  .day-card {
+    background: var(--glass); border: 1px solid var(--border);
+    backdrop-filter: blur(14px);
+    border-radius: 16px; padding: 16px 10px; text-align: center;
+    box-shadow: var(--shadow); transition: border-color 0.2s, transform 0.2s;
+  }
+  .day-card:hover { border-color: var(--accent2); transform: translateY(-3px); }
+  .day-card img { width: 38px; margin: 6px 0; }
+  .day-card .dc-date { font-size: 11px; color: var(--muted); }
+  .day-card .dc-cond { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+  .day-card .dc-temp { font-size: 14px; font-weight: 600; }
+  .day-card .dc-temp span { color: var(--muted); font-weight: 400; }
 
-    /* CHARTS */
-    .chart-card {
-        width: 100%;
-        max-width: 900px;
-        background: rgba(255,255,255,0.18);
-        border-radius: 16px;
-        padding: 16px;
-        backdrop-filter: blur(10px);
-        box-shadow: 0 8px 20px rgba(0,0,0,0.25);
-        margin-bottom: 20px;
-    }
-
-    canvas {
-        width: 100%;
-        max-width: 100%;
-        border-radius: 12px;
-        background: rgba(0,0,0,0.1);
-    }
-
-    /* NEXT 10 HOURS SCROLL ROW */
-    .next10-scroll {
-        width: 100%;
-        max-width: 900px;
-        display: flex;
-        overflow-x: auto;
-        gap: 12px;
-        padding-bottom: 10px;
-        margin-bottom: 20px;
-    }
-
-    .next10-card {
-        min-width: 140px;
-        background: rgba(255,255,255,0.18);
-        padding: 14px;
-        border-radius: 16px;
-        text-align: center;
-        backdrop-filter: blur(10px);
-        box-shadow: 0 6px 16px rgba(0,0,0,0.25);
-    }
-
-    .next10-card img {
-        width: 60px;
-    }
-
-    /* WEEKLY */
-    .weekly-grid {
-        width: 100%;
-        max-width: 900px;
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-        gap: 12px;
-        margin-bottom: 20px;
-    }
-
-    .day-card {
-        background: rgba(255,255,255,0.2);
-        padding: 15px;
-        border-radius: 12px;
-        text-align: center;
-        backdrop-filter: blur(8px);
-        box-shadow: 0 6px 16px rgba(0,0,0,0.25);
-    }
-
-    footer {
-        margin: 10px 0;
-        opacity: 0.8;
-        font-size: 14px;
-        text-align: center;
-    }
+  footer {
+    margin-top: 24px; font-size: 12px; color: var(--muted);
+    letter-spacing: 0.5px; position: relative; z-index: 5;
+  }
 </style>
 </head>
-
 <body>
 
-<h1>Weather Anytime Anywhere</h1>
-<div style="position:absolute; top:15px; right:15px;">
-    <button id="langToggle" onclick="toggleLanguage()" 
-        style="padding:6px 12px; border-radius:8px; border:none; background:white; color:#333; cursor:pointer;">
-        EN / FI
-    </button>
+<div class="topbar">
+  <div class="logo">Weather Anytime Anywhere</div>
+  <button id="langToggle" onclick="toggleLanguage()">EN / FI</button>
 </div>
 
-
-<!-- SEARCH -->
-<div class="search-container">
-    <input type="text" id="cityInput" placeholder="Enter city name..." />
-    <button onclick="getWeather()">Search</button>
+<div class="search-wrap">
+  <input type="text" id="cityInput" placeholder="Enter city name..." />
+  <button onclick="getWeather()">Search</button>
 </div>
 
-<!-- HERO -->
 <div class="hero" id="heroSection">
-    <h2 id="locationName">City</h2>
-    <div class="temp" id="currentTemp">--°C</div>
-    <div class="condition" id="currentCondition">Condition</div>
-    <div class="hero-sub" id="heroExtra">Feels like --°C • Humidity --%</div>
+  <div class="hero-location" id="locationName">—</div>
+  <div class="hero-temp" id="currentTemp">--°</div>
+  <div class="hero-condition" id="currentCondition">—</div>
+  <div class="hero-sub">
+    <span><span class="val" id="heroFeels">--°C</span><span class="lbl" id="lblHeroFeels">Feels like</span></span>
+    <span><span class="val" id="heroHumidity">--%</span><span class="lbl" id="lblHeroHumidity">Humidity</span></span>
+  </div>
 </div>
 
-<!-- NEXT 2 HOURS BELOW HERO -->
-<div class="next2-container">
-    <div class="next2-card" id="nextHour1"></div>
-    <div class="next2-card" id="nextHour2"></div>
+<div class="next2-grid">
+  <div class="next2-card" id="nextHour1"></div>
+  <div class="next2-card" id="nextHour2"></div>
 </div>
 
-<!-- SUMMARY -->
-<div class="summary-card">
-    <h3>Today Summary</h3>
-    <div class="summary-row"><span>Feels Like:</span> <span id="sumFeels">--°C</span></div>
-    <div class="summary-row"><span>Humidity:</span> <span id="sumHumidity">--%</span></div>
-    <div class="summary-row"><span>Wind:</span> <span id="sumWind">-- kph</span></div>
-    <div class="summary-row"><span>Rain Chance:</span> <span id="sumRain">--%</span></div>
-    <div class="summary-row"><span>Sunrise:</span> <span id="sumSunrise">--:--</span></div>
-    <div class="summary-row"><span>Sunset:</span> <span id="sumSunset">--:--</span></div>
-
-    <h3 style="margin-top:15px;">Wind Direction</h3>
-    <div class="compass-container">
-        <div class="compass-base"></div>
-        <div class="compass-needle" id="windNeedle"></div>
+<div class="sec-label" id="labelToday">Today Summary</div>
+<div class="card">
+  <div class="summary-grid">
+    <div class="sum-pill"><span class="sp-label" id="lblFeels">Feels Like</span><span class="sp-value" id="sumFeels">--°C</span></div>
+    <div class="sum-pill"><span class="sp-label" id="lblHumidity">Humidity</span><span class="sp-value" id="sumHumidity">--%</span></div>
+    <div class="sum-pill"><span class="sp-label" id="lblWind">Wind</span><span class="sp-value" id="sumWind">-- kph</span></div>
+    <div class="sum-pill"><span class="sp-label" id="lblRain">Rain Chance</span><span class="sp-value" id="sumRain">--%</span></div>
+    <div class="sum-pill"><span class="sp-label" id="lblSunrise">Sunrise</span><span class="sp-value" id="sumSunrise">--:--</span></div>
+    <div class="sum-pill"><span class="sp-label" id="lblSunset">Sunset</span><span class="sp-value" id="sumSunset">--:--</span></div>
+  </div>
+  <div class="extras-row">
+    <div class="compass-outer">
+      <div class="card-title" id="lblWindDir">Wind Direction</div>
+      <div class="compass-ring"><div class="compass-needle" id="windNeedle"></div></div>
     </div>
-
-    <h3 style="margin-top:15px;">UV Index</h3>
-    <div class="uv-bar">
-        <div class="uv-pointer" id="uvPointer"></div>
+    <div class="uv-outer">
+      <div class="card-title" id="lblUV">UV Index</div>
+      <div class="uv-bar"><div class="uv-dot" id="uvPointer"></div></div>
+      <div id="uvText">UV: --</div>
     </div>
-    <div class="hint" id="uvText">UV: --</div>
+  </div>
 </div>
 
-<!-- TEMPERATURE CHART -->
-<div class="chart-card">
-    <h3>Temperature Trend (Next 12h)</h3>
-    <canvas id="tempChart" width="320" height="160"></canvas>
+<div class="card">
+  <div class="card-title" id="lblTempChart">Temperature Trend (Next 12h)</div>
+  <canvas id="tempChart" height="140"></canvas>
 </div>
 
-<!-- RAIN CHANCE CHART -->
-<div class="chart-card">
-    <h3>Rain Chance Trend (Next 12h)</h3>
-    <canvas id="rainChart" width="320" height="160"></canvas>
+<div class="card">
+  <div class="card-title" id="lblRainChart">Rain Chance Trend (Next 12h)</div>
+  <canvas id="rainChart" height="140"></canvas>
 </div>
 
-<!-- NEXT 10 HOURS SCROLL -->
-<h2 class="section-title">Next 10 Hours</h2>
-<div class="next10-scroll" id="next10Scroll"></div>
+<div class="sec-label" id="labelNext10">Next 10 Hours</div>
+<div class="next10-row" id="next10Scroll"></div>
 
-<!-- WEEKLY -->
-<h2 class="section-title">Next 7 Days</h2>
+<div class="sec-label" id="labelWeekly">Next 7 Days</div>
 <div class="weekly-grid" id="weeklyForecast"></div>
 
-<footer>
-    Powered by WeatherAPI • Built by Prasenjit
-</footer>
+<footer>Powered by WeatherAPI &nbsp;•&nbsp; Built by Prasenjit</footer>
 
 <script src="app.js"></script>
 </body>
