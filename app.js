@@ -172,6 +172,83 @@ function rerender() {
   updateWeekly(d.next7Days);
 }
 
+// ── AUTOCOMPLETE ─────────────────────────────────────────────────────────────
+let acTimer = null;
+let acIndex = -1;
+let acResults = [];
+
+document.addEventListener("DOMContentLoaded", () => {
+  const input = document.getElementById("cityInput");
+
+  input.addEventListener("input", () => {
+    clearTimeout(acTimer);
+    const q = input.value.trim();
+    if (q.length < 2) { closeSuggestions(); return; }
+    acTimer = setTimeout(() => fetchSuggestions(q), 250);
+  });
+
+  document.addEventListener("click", e => {
+    if (!e.target.closest(".autocomplete-wrap")) closeSuggestions();
+  });
+});
+
+async function fetchSuggestions(q) {
+  try {
+    const url = `https://api.weatherapi.com/v1/search.json?key=${WEATHERAPI_KEY}&q=${encodeURIComponent(q)}`;
+    const res  = await fetch(url);
+    const data = await res.json();
+    acResults = data;
+    acIndex = -1;
+    renderSuggestions(data);
+  } catch { closeSuggestions(); }
+}
+
+function renderSuggestions(items) {
+  const box = document.getElementById("suggestions");
+  if (!items.length) { closeSuggestions(); return; }
+  box.innerHTML = items.map((item, i) => `
+    <div class="suggestion-item" data-index="${i}" onmousedown="pickSuggestion(${i})">
+      <span class="s-city">${item.name}</span>
+      <span class="s-region">${[item.region, item.country].filter(Boolean).join(", ")}</span>
+    </div>`).join("");
+  box.classList.add("open");
+}
+
+function pickSuggestion(i) {
+  const item = acResults[i];
+  if (!item) return;
+  document.getElementById("cityInput").value = item.name;
+  closeSuggestions();
+  fetchAndRender(`${item.lat},${item.lon}`);
+}
+
+function closeSuggestions() {
+  const box = document.getElementById("suggestions");
+  box.classList.remove("open");
+  box.innerHTML = "";
+  acIndex = -1;
+}
+
+function handleSearchKey(e) {
+  const box   = document.getElementById("suggestions");
+  const items = box.querySelectorAll(".suggestion-item");
+  if (e.key === "ArrowDown") {
+    e.preventDefault();
+    acIndex = Math.min(acIndex + 1, items.length - 1);
+    items.forEach((el, i) => el.classList.toggle("active", i === acIndex));
+  } else if (e.key === "ArrowUp") {
+    e.preventDefault();
+    acIndex = Math.max(acIndex - 1, 0);
+    items.forEach((el, i) => el.classList.toggle("active", i === acIndex));
+  } else if (e.key === "Enter") {
+    e.preventDefault();
+    if (acIndex >= 0 && acResults[acIndex]) pickSuggestion(acIndex);
+    else getWeather();
+  } else if (e.key === "Escape") {
+    closeSuggestions();
+  }
+}
+
 // ── BOOT ────────────────────────────────────────────────────────────────────
 window.addEventListener("DOMContentLoaded", () => {
   applyLanguage();
@@ -184,6 +261,7 @@ window.addEventListener("DOMContentLoaded", () => {
 });
 
 async function getWeather() {
+  closeSuggestions();
   const city = document.getElementById("cityInput").value.trim();
   if (city) await fetchAndRender(city);
 }
