@@ -47,15 +47,76 @@ const LANG = {
 };
 
 const CONDITION_FI = {
-  "Sunny":"Aurinkoista","Clear":"Selkeää","Partly cloudy":"Puolipilvistä",
-  "Cloudy":"Pilvistä","Overcast":"Ylipilvistä","Mist":"Utuista","Fog":"Sumuista",
-  "Patchy rain possible":"Mahdollisesti sadetta","Light rain":"Kevyttä sadetta",
-  "Moderate rain":"Kohtalaista sadetta","Heavy rain":"Voimakasta sadetta",
-  "Light snow":"Kevyttä lunta","Moderate snow":"Kohtalaista lunta",
-  "Heavy snow":"Voimakasta lunta","Patchy snow possible":"Mahdollisesti lunta",
-  "Thundery outbreaks possible":"Mahdollisia ukkoskuuroja","Blizzard":"Lumimyrsky",
-  "Freezing fog":"Jäätävää sumua","Ice pellets":"Jäätihkua",
-  "Light sleet":"Kevyttä räntää","Moderate or heavy sleet":"Voimakasta räntää"
+  // Clear / cloudy
+  "Sunny":                                          "Aurinkoista",
+  "Clear":                                          "Selkeää",
+  "Partly cloudy":                                  "Puolipilvistä",
+  "Cloudy":                                         "Pilvistä",
+  "Overcast":                                       "Ylipilvistä",
+
+  // Fog / mist
+  "Mist":                                           "Utuista",
+  "Fog":                                            "Sumuista",
+  "Freezing fog":                                   "Jäätävää sumua",
+
+  // Rain – patchy / possible
+  "Patchy rain possible":                           "Mahdollisesti sadetta",
+  "Patchy rain nearby":                             "Sadetta lähialueella",
+  "Patchy light rain":                              "Paikoin kevyttä sadetta",
+  "Patchy light rain with thunder":                 "Paikoin kevyttä sadetta ja ukkosta",
+  "Patchy moderate rain":                           "Paikoin kohtalaista sadetta",
+  "Patchy heavy rain":                              "Paikoin voimakasta sadetta",
+  "Patchy freezing drizzle possible":               "Mahdollisesti jäätävää tihkusadetta",
+
+  // Drizzle
+  "Light drizzle":                                  "Kevyttä tihkusadetta",
+  "Freezing drizzle":                               "Jäätävää tihkusadetta",
+  "Heavy freezing drizzle":                         "Voimakasta jäätävää tihkusadetta",
+
+  // Rain
+  "Light rain":                                     "Kevyttä sadetta",
+  "Moderate rain":                                  "Kohtalaista sadetta",
+  "Heavy rain":                                     "Voimakasta sadetta",
+  "Light rain shower":                              "Kevyitä sadekuuroja",
+  "Moderate or heavy rain shower":                  "Kohtalaisia tai voimakkaita sadekuuroja",
+  "Torrential rain shower":                         "Rankkakuuroja",
+  "Light freezing rain":                            "Kevyttä jäätävää sadetta",
+  "Moderate or heavy freezing rain":                "Kohtalaista tai voimakasta jäätävää sadetta",
+  "Moderate or heavy rain in area with thunder":    "Kohtalaista tai voimakasta sadetta ukkosen kanssa",
+
+  // Sleet
+  "Light sleet":                                    "Kevyttä räntää",
+  "Moderate or heavy sleet":                        "Kohtalaista tai voimakasta räntää",
+  "Light sleet showers":                            "Kevyitä räntäkuuroja",
+  "Moderate or heavy sleet showers":                "Kohtalaisia tai voimakkaita räntäkuuroja",
+
+  // Snow – patchy / possible
+  "Patchy snow possible":                           "Mahdollisesti lunta",
+  "Patchy snow nearby":                             "Lunta lähialueella",
+  "Patchy light snow":                              "Paikoin kevyttä lunta",
+  "Patchy moderate snow":                           "Paikoin kohtalaista lunta",
+  "Patchy heavy snow":                              "Paikoin voimakasta lumisadetta",
+  "Patchy light snow with thunder":                 "Paikoin kevyttä lunta ja ukkosta",
+
+  // Snow
+  "Light snow":                                     "Kevyttä lunta",
+  "Moderate snow":                                  "Kohtalaista lunta",
+  "Heavy snow":                                     "Voimakasta lumisadetta",
+  "Blowing snow":                                   "Tuiskua",
+  "Blizzard":                                       "Lumimyrsky",
+  "Light snow showers":                             "Kevyitä lumikuuroja",
+  "Moderate or heavy snow showers":                 "Kohtalaisia tai voimakkaita lumikuuroja",
+  "Moderate or heavy snow in area with thunder":    "Kohtalaista tai voimakasta lunta ukkosen kanssa",
+
+  // Ice / hail
+  "Ice pellets":                                    "Jäätihkua",
+  "Light showers of ice pellets":                   "Kevyitä jäätihkukuuroja",
+  "Moderate or heavy showers of ice pellets":       "Kohtalaisia tai voimakkaita jäätihkukuuroja",
+
+  // Thunder
+  "Thundery outbreaks possible":                    "Mahdollisia ukkoskuuroja",
+  "Thunder":                                        "Ukkosta",
+  "Thunderstorm":                                   "Ukkosmyrsky",
 };
 
 const t = () => LANG[currentLang];
