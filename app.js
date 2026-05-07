@@ -120,7 +120,13 @@ const CONDITION_FI = {
 };
 
 const t = () => LANG[currentLang];
-const cond = (text) => currentLang === "fi" ? (CONDITION_FI[text] || text) : text;
+const cond = (text) => {
+  if (currentLang !== "fi") return text;
+  if (CONDITION_FI[text]) return CONDITION_FI[text];
+  const titled = text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+  const allTitle = text.toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+  return CONDITION_FI[allTitle] || CONDITION_FI[titled] || text;
+};
 
 // ── LANGUAGE TOGGLE ──────────────────────────────────────────────────────────
 function toggleLanguage() {
