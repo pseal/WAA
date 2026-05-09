@@ -47,19 +47,86 @@ const LANG = {
 };
 
 const CONDITION_FI = {
-  "Sunny":"Aurinkoista","Clear":"Selkeää","Partly cloudy":"Puolipilvistä",
-  "Cloudy":"Pilvistä","Overcast":"Ylipilvistä","Mist":"Utuista","Fog":"Sumuista",
-  "Patchy rain possible":"Mahdollisesti sadetta","Light rain":"Kevyttä sadetta",
-  "Moderate rain":"Kohtalaista sadetta","Heavy rain":"Voimakasta sadetta",
-  "Light snow":"Kevyttä lunta","Moderate snow":"Kohtalaista lunta",
-  "Heavy snow":"Voimakasta lunta","Patchy snow possible":"Mahdollisesti lunta",
-  "Thundery outbreaks possible":"Mahdollisia ukkoskuuroja","Blizzard":"Lumimyrsky",
-  "Freezing fog":"Jäätävää sumua","Ice pellets":"Jäätihkua",
-  "Light sleet":"Kevyttä räntää","Moderate or heavy sleet":"Voimakasta räntää"
+  // Clear / cloudy
+  "Sunny":                                          "Aurinkoista",
+  "Clear":                                          "Selkeää",
+  "Partly cloudy":                                  "Puolipilvistä",
+  "Cloudy":                                         "Pilvistä",
+  "Overcast":                                       "Ylipilvistä",
+
+  // Fog / mist
+  "Mist":                                           "Utuista",
+  "Fog":                                            "Sumuista",
+  "Freezing fog":                                   "Jäätävää sumua",
+
+  // Rain – patchy / possible
+  "Patchy rain possible":                           "Mahdollisesti sadetta",
+  "Patchy rain nearby":                             "Sadetta lähialueella",
+  "Patchy light rain":                              "Paikoin kevyttä sadetta",
+  "Patchy light rain with thunder":                 "Paikoin kevyttä sadetta ja ukkosta",
+  "Patchy moderate rain":                           "Paikoin kohtalaista sadetta",
+  "Patchy heavy rain":                              "Paikoin voimakasta sadetta",
+  "Patchy freezing drizzle possible":               "Mahdollisesti jäätävää tihkusadetta",
+
+  // Drizzle
+  "Light drizzle":                                  "Kevyttä tihkusadetta",
+  "Freezing drizzle":                               "Jäätävää tihkusadetta",
+  "Heavy freezing drizzle":                         "Voimakasta jäätävää tihkusadetta",
+
+  // Rain
+  "Light rain":                                     "Kevyttä sadetta",
+  "Moderate rain":                                  "Kohtalaista sadetta",
+  "Heavy rain":                                     "Voimakasta sadetta",
+  "Light rain shower":                              "Kevyitä sadekuuroja",
+  "Moderate or heavy rain shower":                  "Kohtalaisia tai voimakkaita sadekuuroja",
+  "Torrential rain shower":                         "Rankkakuuroja",
+  "Light freezing rain":                            "Kevyttä jäätävää sadetta",
+  "Moderate or heavy freezing rain":                "Kohtalaista tai voimakasta jäätävää sadetta",
+  "Moderate or heavy rain in area with thunder":    "Kohtalaista tai voimakasta sadetta ukkosen kanssa",
+
+  // Sleet
+  "Light sleet":                                    "Kevyttä räntää",
+  "Moderate or heavy sleet":                        "Kohtalaista tai voimakasta räntää",
+  "Light sleet showers":                            "Kevyitä räntäkuuroja",
+  "Moderate or heavy sleet showers":                "Kohtalaisia tai voimakkaita räntäkuuroja",
+
+  // Snow – patchy / possible
+  "Patchy snow possible":                           "Mahdollisesti lunta",
+  "Patchy snow nearby":                             "Lunta lähialueella",
+  "Patchy light snow":                              "Paikoin kevyttä lunta",
+  "Patchy moderate snow":                           "Paikoin kohtalaista lunta",
+  "Patchy heavy snow":                              "Paikoin voimakasta lumisadetta",
+  "Patchy light snow with thunder":                 "Paikoin kevyttä lunta ja ukkosta",
+
+  // Snow
+  "Light snow":                                     "Kevyttä lunta",
+  "Moderate snow":                                  "Kohtalaista lunta",
+  "Heavy snow":                                     "Voimakasta lumisadetta",
+  "Blowing snow":                                   "Tuiskua",
+  "Blizzard":                                       "Lumimyrsky",
+  "Light snow showers":                             "Kevyitä lumikuuroja",
+  "Moderate or heavy snow showers":                 "Kohtalaisia tai voimakkaita lumikuuroja",
+  "Moderate or heavy snow in area with thunder":    "Kohtalaista tai voimakasta lunta ukkosen kanssa",
+
+  // Ice / hail
+  "Ice pellets":                                    "Jäätihkua",
+  "Light showers of ice pellets":                   "Kevyitä jäätihkukuuroja",
+  "Moderate or heavy showers of ice pellets":       "Kohtalaisia tai voimakkaita jäätihkukuuroja",
+
+  // Thunder
+  "Thundery outbreaks possible":                    "Mahdollisia ukkoskuuroja",
+  "Thunder":                                        "Ukkosta",
+  "Thunderstorm":                                   "Ukkosmyrsky",
 };
 
 const t = () => LANG[currentLang];
-const cond = (text) => currentLang === "fi" ? (CONDITION_FI[text] || text) : text;
+const cond = (text) => {
+  if (currentLang !== "fi") return text;
+  if (CONDITION_FI[text]) return CONDITION_FI[text];
+  const titled = text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+  const allTitle = text.toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+  return CONDITION_FI[allTitle] || CONDITION_FI[titled] || text;
+};
 
 // ── LANGUAGE TOGGLE ──────────────────────────────────────────────────────────
 function toggleLanguage() {
@@ -105,6 +172,83 @@ function rerender() {
   updateWeekly(d.next7Days);
 }
 
+// ── AUTOCOMPLETE ─────────────────────────────────────────────────────────────
+let acTimer = null;
+let acIndex = -1;
+let acResults = [];
+
+document.addEventListener("DOMContentLoaded", () => {
+  const input = document.getElementById("cityInput");
+
+  input.addEventListener("input", () => {
+    clearTimeout(acTimer);
+    const q = input.value.trim();
+    if (q.length < 2) { closeSuggestions(); return; }
+    acTimer = setTimeout(() => fetchSuggestions(q), 250);
+  });
+
+  document.addEventListener("click", e => {
+    if (!e.target.closest(".autocomplete-wrap")) closeSuggestions();
+  });
+});
+
+async function fetchSuggestions(q) {
+  try {
+    const url = `https://api.weatherapi.com/v1/search.json?key=${WEATHERAPI_KEY}&q=${encodeURIComponent(q)}`;
+    const res  = await fetch(url);
+    const data = await res.json();
+    acResults = data;
+    acIndex = -1;
+    renderSuggestions(data);
+  } catch { closeSuggestions(); }
+}
+
+function renderSuggestions(items) {
+  const box = document.getElementById("suggestions");
+  if (!items.length) { closeSuggestions(); return; }
+  box.innerHTML = items.map((item, i) => `
+    <div class="suggestion-item" data-index="${i}" onmousedown="pickSuggestion(${i})">
+      <span class="s-city">${item.name}</span>
+      <span class="s-region">${[item.region, item.country].filter(Boolean).join(", ")}</span>
+    </div>`).join("");
+  box.classList.add("open");
+}
+
+function pickSuggestion(i) {
+  const item = acResults[i];
+  if (!item) return;
+  document.getElementById("cityInput").value = item.name;
+  closeSuggestions();
+  fetchAndRender(`${item.lat},${item.lon}`);
+}
+
+function closeSuggestions() {
+  const box = document.getElementById("suggestions");
+  box.classList.remove("open");
+  box.innerHTML = "";
+  acIndex = -1;
+}
+
+function handleSearchKey(e) {
+  const box   = document.getElementById("suggestions");
+  const items = box.querySelectorAll(".suggestion-item");
+  if (e.key === "ArrowDown") {
+    e.preventDefault();
+    acIndex = Math.min(acIndex + 1, items.length - 1);
+    items.forEach((el, i) => el.classList.toggle("active", i === acIndex));
+  } else if (e.key === "ArrowUp") {
+    e.preventDefault();
+    acIndex = Math.max(acIndex - 1, 0);
+    items.forEach((el, i) => el.classList.toggle("active", i === acIndex));
+  } else if (e.key === "Enter") {
+    e.preventDefault();
+    if (acIndex >= 0 && acResults[acIndex]) pickSuggestion(acIndex);
+    else getWeather();
+  } else if (e.key === "Escape") {
+    closeSuggestions();
+  }
+}
+
 // ── BOOT ────────────────────────────────────────────────────────────────────
 window.addEventListener("DOMContentLoaded", () => {
   applyLanguage();
@@ -117,6 +261,7 @@ window.addEventListener("DOMContentLoaded", () => {
 });
 
 async function getWeather() {
+  closeSuggestions();
   const city = document.getElementById("cityInput").value.trim();
   if (city) await fetchAndRender(city);
 }
