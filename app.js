@@ -255,8 +255,16 @@ window.addEventListener("DOMContentLoaded", () => {
   if ("geolocation" in navigator) {
     navigator.geolocation.getCurrentPosition(
       pos => fetchAndRender(`${pos.coords.latitude},${pos.coords.longitude}`),
-      ()  => console.warn("Geolocation denied")
+      err => {
+        console.warn("Geolocation denied or failed:", err.message);
+        // Fallback: use IP-based location via WeatherAPI
+        fetchAndRender("auto:ip");
+      },
+      { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
     );
+  } else {
+    // Browser doesn't support geolocation — fall back to IP location
+    fetchAndRender("auto:ip");
   }
 });
 
