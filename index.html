@@ -5,6 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Weather Anytime Anywhere</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Bebas+Neue&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#050d1a" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="WAA Weather" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png" />
 <style>
   :root {
     --bg0: #050d1a;
@@ -117,6 +128,36 @@
     letter-spacing: 0.3px;
   }
   .search-wrap button:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(56,189,248,0.4); }
+
+  /* ── AUTOCOMPLETE ── */
+  .autocomplete-wrap { position: relative; flex: 1; }
+  .autocomplete-wrap input { width: 100%; }
+
+  .suggestions {
+    position: absolute; top: calc(100% + 8px); left: 0; right: 0;
+    background: #0d1f3c;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 16px 40px rgba(0,0,0,0.6);
+    z-index: 999;
+    display: none;
+  }
+  .suggestions.open { display: block; }
+
+  .suggestion-item {
+    padding: 12px 20px;
+    font-size: 14px; cursor: pointer;
+    display: flex; flex-direction: column; gap: 2px;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+  .suggestion-item:last-child { border-bottom: none; }
+  .suggestion-item:hover, .suggestion-item.active {
+    background: rgba(56,189,248,0.12);
+  }
+  .suggestion-item .s-city { font-weight: 600; color: var(--text); }
+  .suggestion-item .s-region { font-size: 12px; color: var(--muted); }
 
   /* ── HERO ── */
   .hero {
@@ -331,7 +372,11 @@
 </div>
 
 <div class="search-wrap">
-  <input type="text" id="cityInput" placeholder="Enter city name..." />
+  <div class="autocomplete-wrap">
+    <input type="text" id="cityInput" placeholder="Enter city name..."
+           autocomplete="off" onkeydown="handleSearchKey(event)" />
+    <div class="suggestions" id="suggestions"></div>
+  </div>
   <button onclick="getWeather()">Search</button>
 </div>
 
@@ -392,5 +437,14 @@
 <footer>Powered by WeatherAPI &nbsp;•&nbsp; Built by Prasenjit</footer>
 
 <script src="app.js"></script>
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("/sw.js")
+        .then(r => console.log("SW registered:", r.scope))
+        .catch(e => console.warn("SW failed:", e));
+    });
+  }
+</script>
 </body>
 </html>
