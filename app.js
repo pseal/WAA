@@ -249,23 +249,62 @@ function handleSearchKey(e) {
   }
 }
 
+// ── LOCATION ─────────────────────────────────────────────────────────────────
+function requestLocation() {
+  const btn = document.getElementById("locBtn");
+  if (btn) btn.classList.add("spinning");
+
+  if (!("geolocation" in navigator)) {
+    if (btn) btn.classList.remove("spinning");
+    fetchAndRender("auto:ip");
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      if (btn) btn.classList.remove("spinning");
+      fetchAndRender(`${pos.coords.latitude},${pos.coords.longitude}`);
+    },
+    err => {
+      if (btn) btn.classList.remove("spinning");
+      console.warn("GPS failed:", err.message);
+      // Only fall back to IP if permission was denied
+      // For timeout/unavailable, show a message instead
+      if (err.code === err.PERMISSION_DENIED) {
+        fetchAndRender("auto:ip");
+        showLocationWarning();
+      } else {
+        // Try again once more with lower accuracy
+        navigator.geolocation.getCurrentPosition(
+          pos => fetchAndRender(`${pos.coords.latitude},${pos.coords.longitude}`),
+          () => fetchAndRender("auto:ip"),
+          { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 }
+        );
+      }
+    },
+    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+  );
+}
+
+function showLocationWarning() {
+  const hero = document.getElementById("heroSection");
+  const existing = document.getElementById("locWarning");
+  if (existing || !hero) return;
+  const warn = document.createElement("div");
+  warn.id = "locWarning";
+  warn.style.cssText = `
+    margin-top: 10px; padding: 8px 14px; border-radius: 10px;
+    background: rgba(251,146,60,0.15); border: 1px solid rgba(251,146,60,0.3);
+    font-size: 12px; color: rgba(251,146,60,0.9); text-align: center;
+  `;
+  warn.textContent = "📍 GPS blocked — showing approximate location. Enable location in phone Settings for accuracy.";
+  hero.appendChild(warn);
+}
+
 // ── BOOT ────────────────────────────────────────────────────────────────────
 window.addEventListener("DOMContentLoaded", () => {
   applyLanguage();
-  if ("geolocation" in navigator) {
-    navigator.geolocation.getCurrentPosition(
-      pos => fetchAndRender(`${pos.coords.latitude},${pos.coords.longitude}`),
-      err => {
-        console.warn("Geolocation denied or failed:", err.message);
-        // Fallback: use IP-based location via WeatherAPI
-        fetchAndRender("auto:ip");
-      },
-      { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
-    );
-  } else {
-    // Browser doesn't support geolocation — fall back to IP location
-    fetchAndRender("auto:ip");
-  }
+  requestLocation();
 });
 
 async function getWeather() {

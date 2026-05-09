@@ -129,6 +129,18 @@
   }
   .search-wrap button:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(56,189,248,0.4); }
 
+  /* ── LOCATION BUTTON ── */
+  #locBtn {
+    background: none; border: 1px solid var(--border);
+    border-radius: 50%; width: 38px; height: 38px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 18px; transition: all 0.2s;
+    backdrop-filter: blur(12px); flex-shrink: 0;
+  }
+  #locBtn:hover { border-color: var(--accent); background: rgba(56,189,248,0.1); }
+  #locBtn.spinning { animation: spin 1s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
   /* ── AUTOCOMPLETE ── */
   .autocomplete-wrap { position: relative; flex: 1; }
   .autocomplete-wrap input { width: 100%; }
@@ -372,6 +384,7 @@
 </div>
 
 <div class="search-wrap">
+  <button id="locBtn" onclick="requestLocation()" title="Use my location">📍</button>
   <div class="autocomplete-wrap">
     <input type="text" id="cityInput" placeholder="Enter city name..."
            autocomplete="off" onkeydown="handleSearchKey(event)" />
