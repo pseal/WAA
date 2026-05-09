@@ -1,8 +1,9 @@
 {
   "name": "Weather Anytime Anywhere",
-  "short_name": "Weather WAA",
+  "short_name": "WAA Weather",
   "description": "Beautiful weather forecasts anytime, anywhere",
-  "start_url": "/",
+  "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#050d1a",
