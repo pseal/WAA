@@ -24,6 +24,8 @@ const LANG = {
     next7Days:      "Next 3 Days",
     searchPlaceholder: "Enter city name...",
     searchButton:   "Search",
+    radarLabel:     "Weather Radar",
+    radarTitle:     "Live Radar Map",
   },
   fi: {
     todaySummary:   "Päivän yhteenveto",
@@ -43,6 +45,8 @@ const LANG = {
     next7Days:      "Seuraavat 3 päivää",
     searchPlaceholder: "Syötä kaupungin nimi...",
     searchButton:   "Hae",
+    radarLabel:     "Säätutkakuva",
+    radarTitle:     "Reaaliaikainen tutka",
   }
 };
 
@@ -156,6 +160,8 @@ function applyLanguage() {
   // hero sub-labels
   document.getElementById("lblHeroFeels").textContent    = l.feelsLikeShort;
   document.getElementById("lblHeroHumidity").textContent = l.humidityShort;
+  const rLabel = document.getElementById("labelRadar"); if (rLabel) rLabel.textContent = l.radarLabel;
+  const rTitle = document.getElementById("lblRadarTitle"); if (rTitle) rTitle.textContent = l.radarTitle;
 }
 
 function rerender() {
@@ -353,6 +359,7 @@ async function fetchAndRender(query) {
     lastWeatherData = { location, next12Hours, next7Days, astro };
     if (next12Hours.length < 3) return;
     rerender();
+    updateRadarLocation(location.lat, location.lon);
 
   } catch (err) { console.error("Fetch error:", err); }
 }
@@ -561,3 +568,33 @@ function formatHour(t) {
 function formatHourShort(t) {
   return new Date(t.replace(" ", "T")).toLocaleTimeString([], { hour: "2-digit" });
 }
+
+// ── RADAR MAP ────────────────────────────────────────────────────────────────
+function setRadarLayer(overlay, btn) {
+  document.querySelectorAll(".radar-layer-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  const frame = document.getElementById("windyFrame");
+  if (!frame) return;
+  const layerMap = { "Rain": "radar", "Clouds": "clouds", "Wind": "wind", "Temp": "temp" };
+  const ov = layerMap[btn.textContent.trim()] || overlay;
+  frame.src = frame.src.replace(/overlay=[^&]+/, "overlay=" + ov);
+}
+
+// Pan radar to searched location
+function updateRadarLocation(lat, lon) {
+  const frame = document.getElementById("windyFrame");
+  if (!frame) return;
+  const activeBtn = document.querySelector(".radar-layer-btn.active");
+  const layerMap = { "Rain": "radar", "Clouds": "clouds", "Wind": "wind", "Temp": "temp" };
+  const ov = activeBtn ? (layerMap[activeBtn.textContent.trim()] || "radar") : "radar";
+  frame.src = `https://embed.windy.com/embed2.html?lat=${lat}&lon=${lon}&detailLat=${lat}&detailLon=${lon}&zoom=7&level=surface&overlay=${ov}&product=ecmwf&menu=&message=true&marker=&calendar=now&pressure=&type=map&location=coordinates&detail=&metricWind=default&metricTemp=default&radarRange=-1`;
+}
+
+// ── BACK TO TOP ───────────────────────────────────────────────────────────────
+(function () {
+  const btn = document.getElementById("bttBtn");
+  if (!btn) return;
+  window.addEventListener("scroll", () => {
+    btn.classList.toggle("visible", window.scrollY > 320);
+  }, { passive: true });
+})();

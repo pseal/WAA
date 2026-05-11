@@ -374,6 +374,93 @@
     margin-top: 24px; font-size: 12px; color: var(--muted);
     letter-spacing: 0.5px; position: relative; z-index: 5;
   }
+
+  /* ── RADAR ── */
+  .radar-section {
+    width: 100%; max-width: 860px;
+    position: relative; z-index: 5;
+    margin-bottom: 14px;
+  }
+  .radar-card {
+    background: var(--glass); border: 1px solid var(--border);
+    backdrop-filter: blur(20px);
+    border-radius: var(--r); overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  .radar-topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .radar-title-row {
+    display: flex; align-items: center; gap: 10px;
+  }
+  .radar-live-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #38bdf8;
+    animation: radarPulse 2s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+  @keyframes radarPulse {
+    0%,100% { opacity: 1; box-shadow: 0 0 0 0 rgba(56,189,248,0.5); }
+    50%      { opacity: 0.6; box-shadow: 0 0 0 5px rgba(56,189,248,0); }
+  }
+  .radar-card-title {
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 2px; text-transform: uppercase;
+    color: var(--accent);
+  }
+  .radar-layer-btns {
+    display: flex; gap: 6px; flex-wrap: wrap;
+  }
+  .radar-layer-btn {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.5px;
+    padding: 5px 12px; border-radius: 30px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Outfit', sans-serif;
+  }
+  .radar-layer-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .radar-layer-btn.active {
+    background: rgba(56,189,248,0.15);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .radar-iframe-wrap {
+    position: relative; width: 100%; height: 420px;
+  }
+  .radar-iframe-wrap iframe {
+    width: 100%; height: 100%;
+    border: none; display: block;
+  }
+  .radar-credit {
+    padding: 8px 20px; font-size: 11px; color: var(--muted);
+    letter-spacing: 0.5px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* ── BACK TO TOP ── */
+  #bttBtn {
+    position: fixed; bottom: 28px; right: 22px;
+    width: 46px; height: 46px; border-radius: 50%;
+    border: 1px solid var(--border);
+    background: rgba(10, 22, 40, 0.85);
+    backdrop-filter: blur(14px);
+    color: var(--accent);
+    font-size: 20px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    z-index: 1000;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s, transform 0.2s, border-color 0.2s;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  }
+  #bttBtn.visible { opacity: 1; pointer-events: auto; }
+  #bttBtn:hover { border-color: var(--accent); transform: translateY(-3px); box-shadow: 0 8px 24px rgba(56,189,248,0.3); }
+  #bttBtn:active { transform: scale(0.93); }
 </style>
 </head>
 <body>
@@ -447,7 +534,34 @@
 <div class="sec-label" id="labelWeekly">Next 3 Days</div>
 <div class="weekly-grid" id="weeklyForecast"></div>
 
+<div class="sec-label" id="labelRadar">Weather Radar</div>
+<div class="radar-section">
+  <div class="radar-card">
+    <div class="radar-topbar">
+      <div class="radar-title-row">
+        <div class="radar-live-dot"></div>
+        <div class="radar-card-title" id="lblRadarTitle">Live Radar Map</div>
+      </div>
+      <div class="radar-layer-btns">
+        <button class="radar-layer-btn active" onclick="setRadarLayer('radar',this)">Rain</button>
+        <button class="radar-layer-btn" onclick="setRadarLayer('clouds',this)">Clouds</button>
+        <button class="radar-layer-btn" onclick="setRadarLayer('wind',this)">Wind</button>
+        <button class="radar-layer-btn" onclick="setRadarLayer('temp',this)">Temp</button>
+      </div>
+    </div>
+    <div class="radar-iframe-wrap">
+      <iframe id="windyFrame"
+        src="https://embed.windy.com/embed2.html?lat=51.5&lon=0.0&detailLat=51.5&detailLon=0.0&zoom=5&level=surface&overlay=radar&product=ecmwf&menu=&message=true&marker=&calendar=now&pressure=&type=map&location=coordinates&detail=&metricWind=default&metricTemp=default&radarRange=-1"
+        allowfullscreen>
+      </iframe>
+    </div>
+    <div class="radar-credit">Powered by Windy &nbsp;•&nbsp; Real-time satellite &amp; radar</div>
+  </div>
+</div>
+
 <footer>Powered by WeatherAPI &nbsp;•&nbsp; Built by Prasenjit</footer>
+
+<button id="bttBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">&#8679;</button>
 
 <script src="app.js"></script>
 <script>
