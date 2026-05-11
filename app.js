@@ -21,7 +21,7 @@ const LANG = {
     tempTrend:      "Temperature Trend (Next 12h)",
     rainTrend:      "Rain Chance Trend (Next 12h)",
     next10Hours:    "Next 10 Hours",
-    next7Days:      "Next 7 Days",
+    next7Days:      "Next 3 Days",
     searchPlaceholder: "Enter city name...",
     searchButton:   "Search",
   },
@@ -40,7 +40,7 @@ const LANG = {
     tempTrend:      "Lämpötilatrendi (12h)",
     rainTrend:      "Sateen tod.näk. (12h)",
     next10Hours:    "Seuraavat 10 tuntia",
-    next7Days:      "Seuraavat 7 päivää",
+    next7Days:      "Seuraavat 3 päivää",
     searchPlaceholder: "Syötä kaupungin nimi...",
     searchButton:   "Hae",
   }
